@@ -56,7 +56,7 @@ this.$solid.fetch('https://timbl.com/timbl/Public/friends.ttl')
 
 A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/), providing an easy to use API for logging in/out of a Solid server. You provide the markup however you want to, using the data provided and calling the actions provided.
 
-*Example:*
+**Example:**
 
 ```vue
 <SolidLogin popupUri="/popup.html">
@@ -83,3 +83,15 @@ A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/),
 
 * `login()`: call this method when you want to invoke the login process (i.e. the popupUri)
 * `logout()`: call this method when you want to logout
+
+
+# ToDo
+
+Ideas for how to keep adding to this
+
+- [ ] Improve `this.$solid`: Rather a direct reference to `solid-auth-client` make it a wrapper for other useful things
+  - auth client still available through `this.$solid.auth`
+  - logged in status `this.$solid.loggedIn`
+  - web id of logged in user `this.$solid.webId`
+- [ ] A way to easily map component data to RDF data
+- [ ] More components?
