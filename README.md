@@ -66,7 +66,7 @@ A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/),
         <button v-else-if="loggedIn" @click="logout()">Log out</button>
         <button v-else @click="login()">Log In</button>
     </div>
-</SolidLogin
+</SolidLogin>
 ```
 
 ### Props
@@ -94,4 +94,5 @@ Ideas for how to keep adding to this
   - logged in status `this.$solid.loggedIn`
   - web id of logged in user `this.$solid.webId`
 - [ ] A way to easily map component data to RDF data
+  - Perhaps [LDFlex](https://github.com/RubenVerborgh/LDflex) / [query-ldflex](https://github.com/solid/query-ldflex) for solid
 - [ ] More components?
