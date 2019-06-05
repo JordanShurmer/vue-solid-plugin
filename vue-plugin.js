@@ -29,10 +29,6 @@ export default {
             //this enables `this.$solid.auth` within a Vue component
             auth,
 
-            //Add a method which invokes the callback once the
-            //user is logged in, or immeditiately if already logged in
-            onLogin,
-
             //Add a reference directly to the query-ldflex api to the vue instance.
             //this enables `this.$solid.data` within a Vue component
             data: solidData
@@ -73,24 +69,31 @@ export default {
 
                     return vmData;
                 }
+
             },
 
             /**
              * Now do the actual loading of the solidData from query-ldflex
+             * and trigger the loggedIn lifecycle hook
              */
             async created() {
-                const desiredData = this.$options.solid || {};
+                onLogin(async session => {
 
-                //user is a special thing
-                if (desiredData.user) {
-                    onLogin(async session => {
+                    const desiredData = this.$options.solid || {};
+                    //user is a special thing
+                    if (desiredData.user) {
                         for (let key in desiredData.user) {
                             const value = await solidData.user[key];
                             console.log(`setting user[${key}] = ${value}`)
                             Vue.set(this.user, key, value);
                         }
-                    })
-                }
+                    }
+
+                    //the loggedIn lifecycle hook
+                    if (this.$options.loggedIn && typeof this.$options.loggedIn === 'function') {
+                        this.$options.loggedIn.call(this);
+                    }
+                });
             }
         })
     }

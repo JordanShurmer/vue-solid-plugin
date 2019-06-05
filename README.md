@@ -7,6 +7,7 @@ A set of Vue plugins/components for making [Solid](https://github.com/solid) app
 * [Getting Started](#getting-started)
 * [Solid Login component](#solidlogin)
 * [Populating data in your component](#populating-data)
+* [New **loggedIn** lifecycle hook](#loggedin-lifecycle-hook)
 * [Accessing the solid-auth-client](#solid-auth-client)
 * [Accessing the query-ldflex api](#query-ldflex)
 
@@ -89,7 +90,7 @@ A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/),
 If your component needs data from solid you can specify it in the definition of your component and the plugin will populate
 it asynchronously, providing your template access to it, the same as `data` and `computed`.
 
-**note: currently only the `user` object is available. Still working on populating arbitrary data**
+**note: currently only the `user` object is available. Still working on populating arbitrary data. For now, use the [loggedIn](#loggedin-lifecycle-hook) lifecycle hook and access data through `this.$solid.data`**
 
 _another note: This is likely to change, it works.. but feels a little off still_
 
@@ -104,6 +105,25 @@ export default {
 +      name: '' //provide a default/initial value
 +    }
 +  }
+}
+```
+
+## `loggedIn` lifecycle hook
+
+This new lifecycle hook will execute after the user logs in and the `solid` data defined above have been populated.
+
+```js
+//you-component.vue
+export default {
+  name: 'YourComponent',
+  data: {
+    moreData: null, //initial value, will populate when the user logs in
+  }
+  methods: ...,
+  solid: ...,
+  loggedIn() {
+    this.moreData = await this.$data['some-url-with#more-data']['somepredicate']
+  }
 }
 ```
 
