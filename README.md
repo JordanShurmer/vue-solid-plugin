@@ -123,7 +123,7 @@ export default {
   methods: ...,
   solid: ...,
   loggedIn() {
-    this.moreData = await this.$data['some-url-with#more-data']['somepredicate']
+    this.moreData = await this.$solid.data['some-url-with#more-data']['somepredicate']
   }
 }
 ```
