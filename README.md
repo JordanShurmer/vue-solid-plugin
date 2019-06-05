@@ -97,35 +97,45 @@ _another note: This is likely to change, it works.. but feels a little off still
 
 ```diff
 //your-component.vue
+<template>
+  <span class="user__name">{{ user.name }}</span>
+</template>
+<script>
 export default {
   name: 'YourComponent',
   data: ...,
-  methods: ...,
 +  solid: {
 +    user: {
 +      name: '' //provide a default/initial value
 +    }
 +  }
 }
+</script>
 ```
 
 ## `loggedIn` lifecycle hook
 
 This new lifecycle hook will execute after the user logs in and the `solid` data defined above have been populated.
 
+Once good use for this is to load arbitrary data which requires the user to be logged in. You can use the [query-ldflex] api for this, which is available at `this.$solid.data`.
+
 ```js
-//you-component.vue
+//your-component.vue
+<template>
+  <span class="more-data">{{ moreData }}</span>
+</template>
+<script>
 export default {
   name: 'YourComponent',
   data: {
     moreData: null, //initial value, will populate when the user logs in
   }
-  methods: ...,
   solid: ...,
   loggedIn() {
-    this.moreData = await this.$solid.data['some-url-with#more-data']['somepredicate']
+    this.moreData = await this.$solid.data['some-rdf-url-with#more-data']['somepredicate']
   }
 }
+</script>
 ```
 
 ## Solid Auth Client
