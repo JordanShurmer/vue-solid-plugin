@@ -11,6 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@solid/query-ldflex": "^2.5.1",
     "esm": "^3.2.25",
     "solid-auth-client": "^2.3.0"
   },

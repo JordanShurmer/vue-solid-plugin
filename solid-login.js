@@ -14,20 +14,19 @@ export default {
         login() {
             if (this.$solid) {
                 console.debug("logging in");
-                this.$solid.popupLogin({ popupUri: this.popupUri });
+                this.$solid.auth.popupLogin({ popupUri: this.popupUri });
             }
         },
         logout() {
             if (this.$solid) {
                 console.debug("logging out");
-                this.$solid.logout();
+                this.$solid.auth.logout();
             }
         }
     },
     created() {
-        console.log("Solid Login Created", {"$solid": this.$solid});
         if (this.$solid) {
-            this.$solid.trackSession(session => {
+            this.$solid.auth.trackSession(session => {
                 this.initializing = false;
                 this.loggedIn = !!session;
                 if (this.loggedIn) {

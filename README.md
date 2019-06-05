@@ -5,8 +5,10 @@
 A set of Vue plugins/components for making [Solid](https://github.com/solid) app development easier.
 
 * [Getting Started](#getting-started)
-* [SolidAuth](#solidauth)
-* [SolidLogin](#solidlogin)
+* [Solid Login component](#solidlogin)
+* [Populating data in your component](#populating-data)
+* [Accessing the solid-auth-client](#solid-auth-client)
+* [Accessing the query-ldflex api](#query-ldflex)
 
 # Getting Started
 
@@ -24,9 +26,9 @@ Add it to your vue app
 // main.js
 import Vue from 'vue';
 import App from './App.vue';
-+ import {SolidAuth, SolidLogin} from 'vue-solid-plugin';
++ import {Solid, SolidLogin} from 'vue-solid-plugin';
 
-+ Vue.use(SolidAuth);
++ Vue.use(Solid);
 + Vue.component('SolidLogin', SolidLogin);
 
 new Vue({
@@ -37,24 +39,22 @@ new Vue({
 
 # Documentation
 
-There are currently 2 features to this package. One adds the [`solid-auth-client`](https://github.com/solid/solid-auth-client) as an instance variable, and one provides a [renderless component](https://adamwathan.me/renderless-components-in-vuejs/) for making logging in easy.
+This plugin does a few different things to help write good Solid applications.
 
-## SolidAuth
 
-```js
-Vue.use(SolidAuth); // Adds `this.$solid` to your vue components
-```
+**features**
 
-A Vue plugin which adds `$solid` to all of your components. `$solid` is a reference to the `solid.auth` object from [`solid-auth-client`](https://github.com/solid/solid-auth-client). This essentially saves you from doing `import solid from 'solid-auth-client'` in every component
-
-```js
-this.$solid.fetch('https://timbl.com/timbl/Public/friends.ttl')
-  .then(console.log);
-```
+* a [renderless component](https://adamwathan.me/renderless-components-in-vuejs/) for making logging in easy called `<SolidLogin>`
+* pre-load data in a component using a new `solid` attribute when defining your component
+* access to the [solid-auth-client] at `this.$solid.auth`
+* access to the [query-ldflex] api at `this.$solid.data`
 
 ## SolidLogin
 
 A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/), providing an easy to use API for logging in/out of a Solid server. You provide the markup however you want to, using the data provided and calling the actions provided.
+
+
+[view src](./solid-login.js)
 
 **Example:**
 
@@ -84,6 +84,46 @@ A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/),
 * `login()`: call this method when you want to invoke the login process (i.e. the popupUri)
 * `logout()`: call this method when you want to logout
 
+## Populating Data
+
+If your component needs data from solid you can specify it in the definition of your component and the plugin will populate
+it asynchronously, providing your template access to it, the same as `data` and `computed`.
+
+**note: currently only the `user` object is available. Still working on populating arbitrary data**
+
+_another note: This is likely to change, it works.. but feels a little off still_
+
+```diff
+//your-component.vue
+export default {
+  name: 'YourComponent',
+  data: ...,
+  methods: ...,
++  solid: {
++    user: {
++      name: '' //provide a default/initial value
++    }
++  }
+}
+```
+
+## Solid Auth Client
+
+A reference to the `solid.auth` object from [solid-auth-client] is availabe at `this.$solid.auth`. This essentially saves you from doing `import auth from 'solid-auth-client'` in every component.
+
+```js
+this.$solid.auth.fetch('https://timbl.com/timbl/Public/friends.ttl')
+  .then(console.log);
+```
+
+## Query LDFlex
+
+A reference to the `data` object from [query-ldflex] is available at `this.$solid.data`. This essentially saves you from doing `import data from 'query-ldflex'` in every component.
+
+```js
+this.$solid.data['https://ruben.verborgh.org/profile/#me'].friends.firstName
+```
+
 
 # ToDo
 
@@ -94,5 +134,8 @@ Ideas for how to keep adding to this
   - logged in status `this.$solid.loggedIn`
   - web id of logged in user `this.$solid.webId`
 - [ ] A way to easily map component data to RDF data
-  - Perhaps [LDFlex](https://github.com/RubenVerborgh/LDflex) / [query-ldflex](https://github.com/solid/query-ldflex) for solid
+  - Perhaps [LDFlex](https://github.com/RubenVerborgh/LDflex) / [query-ldflex] for solid
 - [ ] More components?
+
+[solid-auth-client]: https://github.com/solid/solid-auth-client 'Solid Auth Client'
+[query-ldflex]: https://github.com/solid/query-ldflex 'Query LDFlex'

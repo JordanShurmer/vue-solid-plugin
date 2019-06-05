@@ -1,8 +1,8 @@
 // ESM syntax is supported.
 import SolidLogin from './solid-login.js';
-import SolidAuth from './solid-auth.js';
+import Solid from './vue-plugin.js';
  
 export {
-    SolidAuth,
+    Solid,
     SolidLogin,
 }
