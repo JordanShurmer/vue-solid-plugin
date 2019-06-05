@@ -43,10 +43,11 @@ new Vue({
 This plugin does a few different things to help write good Solid applications.
 
 
-**features**
+**Features**
 
 * a [renderless component](https://adamwathan.me/renderless-components-in-vuejs/) for making logging in easy called `<SolidLogin>`
-* pre-load data in a component using a new `solid` attribute when defining your component
+* pre-load user data in a component using a new `solid` attribute when defining your component
+* **loggedIn** lifecycle hook, to run code after the user logs in
 * access to the [solid-auth-client] at `this.$solid.auth`
 * access to the [query-ldflex] api at `this.$solid.data`
 
