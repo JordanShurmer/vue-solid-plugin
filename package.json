@@ -13,6 +13,7 @@
   "dependencies": {
     "@solid/query-ldflex": "^2.5.1",
     "esm": "^3.2.25",
+    "setimmediate": "^1.0.5",
     "solid-auth-client": "^2.3.0"
   },
   "eslintConfig": {}
