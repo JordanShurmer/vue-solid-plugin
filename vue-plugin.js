@@ -4,7 +4,7 @@
  * to develop Solid applications
  */
 import auth from 'solid-auth-client';
-import data from '@solid/query-ldflex';
+import solidData from '@solid/query-ldflex';
 
 
 /**
@@ -35,7 +35,7 @@ export default {
 
             //Add a reference directly to the query-ldflex api to the vue instance.
             //this enables `this.$solid.data` within a Vue component
-            data
+            data: solidData
         };
 
 
@@ -53,15 +53,30 @@ export default {
              * that the component has
              */
             beforeCreate() {
-                const desiredData = this.$options.solid || {};
-                this.$options.data = {};
-                if (desiredData.user) {
-                    this.$options.data.user = desiredData.user;
+                //exit quickly if we don't care about this component
+                if (!this.$options.solid) return;
+
+
+                const originalData = this.$options.data;
+                const desiredData = this.$options.solid;
+
+                // initialize the vue `data` with the component's data plus the initial solid data shape
+                this.$options.data = function dataWithSolidData(vm) {
+                    const vmData = ((typeof originalData === 'function') ? originalData.call(this, vm) : originalData) || {}
+
+                    if (desiredData.user) {
+                        vmData.user = {
+                            ...desiredData.user,
+                            data: solidData.user
+                        }
+                    }
+
+                    return vmData;
                 }
             },
 
             /**
-             * Now do the actual loading of the data from query-ldflex
+             * Now do the actual loading of the solidData from query-ldflex
              */
             async created() {
                 const desiredData = this.$options.solid || {};
@@ -70,9 +85,9 @@ export default {
                 if (desiredData.user) {
                     onLogin(async session => {
                         for (let key in desiredData.user) {
-                            const value = await data.user[key];
+                            const value = await solidData.user[key];
                             console.log(`setting user[${key}] = ${value}`)
-                            Vue.set(this.$data.user, key, value);
+                            Vue.set(this.user, key, value);
                         }
                     })
                 }
