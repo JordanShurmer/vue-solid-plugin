@@ -160,13 +160,12 @@ this.$solid.data['https://ruben.verborgh.org/profile/#me'].friends.firstName
 
 Ideas for how to keep adding to this
 
-- [ ] Improve `this.$solid`: Rather a direct reference to `solid-auth-client` make it a wrapper for other useful things
-  - auth client still available through `this.$solid.auth`
-  - logged in status `this.$solid.loggedIn`
-  - web id of logged in user `this.$solid.webId`
-- [ ] A way to easily map component data to RDF data
-  - Perhaps [LDFlex](https://github.com/RubenVerborgh/LDflex) / [query-ldflex] for solid
-- [ ] More components?
+* Easier way to load arbitrary data
+  * Improve the `solid` component option somehow
+* Some API to aid with the [data discovery](https://github.com/solid/solid/blob/master/proposals/data-discovery.md) documentation
+  * `this.user.typeIndex['someClass']` to get directly to the instance(s) associated with that type perhaps?
+    * note: query-ldflex currently requires a #subject, so this won't work right now
+  
 
 [solid-auth-client]: https://github.com/solid/solid-auth-client 'Solid Auth Client'
 [query-ldflex]: https://github.com/solid/query-ldflex 'Query LDFlex'
