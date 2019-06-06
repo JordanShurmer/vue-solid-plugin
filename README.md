@@ -46,7 +46,7 @@ This plugin does a few different things to help write good Solid applications.
 **Features**
 
 * a [renderless component](https://adamwathan.me/renderless-components-in-vuejs/) for making logging in easy called `<SolidLogin>`
-* pre-load user data in a component using a new `solid` attribute when defining your component
+* pre-load user data and data with known subjects in a component using a new `solid` attribute when defining your component
 * **loggedIn** lifecycle hook, to run code after the user logs in
 * access to the [solid-auth-client] at `this.$solid.auth`
 * access to the [query-ldflex] api at `this.$solid.data`
@@ -63,19 +63,24 @@ A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/),
 ```vue
 <SolidLogin popupUri="/popup.html">
     <div slot-scope="{ initializing, login, logout, loggedIn, webId }">
-        <span v-if="webId">{{ webId }}</span>
         <button v-if="initializing">Loading...</button>
-        <button v-else-if="loggedIn" @click="logout()">Log out</button>
+        <button v-else-if="loggedIn" @click="logout()" :title="webId">Log out</button>
         <button v-else @click="login()">Log In</button>
     </div>
 </SolidLogin>
 ```
 
+For more info about renderless components, check out this [excellent article](https://adamwathan.me/renderless-components-in-vuejs/).
+
 ### Props
 
-* `popupUri`: the uri to the popup html page for logging in ([generate](https://solid.github.io/solid-auth-client/#generating-a-popup-window) your own, or maybe grab [solid.community's](https://solid.community/common/popup.html) and serve it on your domain)
+You provide the properties on the component itself, passing in data to the SolidLogin component
+
+* `popupUri` <small>required</small>: the uri to the popup html page for logging in ([generate](https://solid.github.io/solid-auth-client/#generating-a-popup-window) your own, or maybe grab [solid.community's](https://solid.community/common/popup.html) and serve it on your domain)
 
 ### Data
+
+This info is given to you in the default slot scope. You can destructure the object, as in the example above.
 
 * `initializing`: true if the `solid-auth-client` has not checked for any login status yet (i.e. it's still initializing). Provide a loading gif or something
 * `loggedIn`: true if logged in, false otherwise
@@ -83,30 +88,40 @@ A [renderless component](https://adamwathan.me/renderless-components-in-vuejs/),
 
 ### Actions
 
+These methods are given to you in the default slot scope. You can destructure the object, as in the example above.
+
 * `login()`: call this method when you want to invoke the login process (i.e. the popupUri)
 * `logout()`: call this method when you want to logout
 
 ## Populating Data
 
 If your component needs data from solid you can specify it in the definition of your component and the plugin will populate
-it asynchronously, providing your template access to it, the same as `data` and `computed`.
+it **asynchronously**, providing your template access to it as if it were in `data` or `computed`.
 
-**note: currently only the `user` object is available. Still working on populating arbitrary data. For now, use the [loggedIn](#loggedin-lifecycle-hook) lifecycle hook and access data through `this.$solid.data`**
+You define where the data comes from (the **subject**) and what data pieces you want (the **predicates**) about that subject. An exception to this is the `user` - for this you only need to define what data you want about the user. The **predicates** can be anything which [query-ldflex] understands: anything from their [context](https://github.com/solid/query-ldflex/blob/master/src/context.json), or any full url (e.g. `https://schema.org/description`)
 
-_another note: This is likely to change, it works.. but feels a little off still_
+**note: this will work for any data which you know the subject of ahead of time, and also for the user data. If you need dynamic data, about subjects you don't know ahead of time, you can use the [loggedIn](#loggedin-lifecycle-hook) lifecycle hook**
 
 ```diff
 //your-component.vue
 <template>
   <span class="user__name">{{ user.name }}</span>
+  <span class="other__thing">{{ other.thing }}</span>
 </template>
 <script>
 export default {
   name: 'YourComponent',
   data: ...,
 +  solid: {
-+    user: {
-+      name: '' //provide a default/initial value
++    user: { //user is sepcial, no need for 'subject' and 'predicates'
++      name: 'name',
++      title: 'foaf:title',
++    },
++    other: {
++      subject: 'http://some-other-url.to#a-thing',
++      predicates: { //the predicates define the shape of the object
++        thing: 'schema:description'
++      }
 +    }
 +  }
 }
@@ -117,9 +132,9 @@ export default {
 
 This new lifecycle hook will execute after the user logs in and the `solid` data defined above have been populated.
 
-Once good use for this is to load arbitrary data which requires the user to be logged in. You can use the [query-ldflex] api for this, which is available at `this.$solid.data`.
+One good use for this is to load arbitrary data which requires the user to be logged in. You can use the [query-ldflex] api for this, which is available at `this.$solid.data`.
 
-```js
+```vue
 //your-component.vue
 <template>
   <span class="more-data">{{ moreData }}</span>
@@ -129,9 +144,9 @@ export default {
   name: 'YourComponent',
   data: {
     moreData: null, //initial value, will populate when the user logs in
-  }
-  solid: ...,
-  loggedIn() {
+  },
+  solid: {...},
+  async loggedIn() {
     this.moreData = await this.$solid.data['some-rdf-url-with#more-data']['somepredicate']
   }
 }
@@ -152,7 +167,7 @@ this.$solid.auth.fetch('https://timbl.com/timbl/Public/friends.ttl')
 A reference to the `data` object from [query-ldflex] is available at `this.$solid.data`. This essentially saves you from doing `import data from 'query-ldflex'` in every component.
 
 ```js
-this.$solid.data['https://ruben.verborgh.org/profile/#me'].friends.firstName
+console.log(await this.$solid.data['https://ruben.verborgh.org/profile/#me'].friends.firstName);
 ```
 
 
@@ -160,8 +175,6 @@ this.$solid.data['https://ruben.verborgh.org/profile/#me'].friends.firstName
 
 Ideas for how to keep adding to this
 
-* Easier way to load arbitrary data
-  * Improve the `solid` component option somehow
 * Some API to aid with the [data discovery](https://github.com/solid/solid/blob/master/proposals/data-discovery.md) documentation
   * `this.user.typeIndex['someClass']` to get directly to the instance(s) associated with that type perhaps?
     * note: query-ldflex currently requires a #subject, so this won't work right now
